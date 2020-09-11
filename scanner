@@ -1,0 +1,41 @@
+import tkinter as tk
+import cv2
+import numpy as np
+import pyzbar.pyzbar as pyzbar
+window=tk.Tk()
+window.title("SCANNER")
+window.geometry("500x500")
+window.config(background='black')
+window.maxsize(500,500)
+
+
+def scan():
+    cap = cv2.VideoCapture(0)
+    font = cv2.FONT_HERSHEY_PLAIN
+
+    while True:
+        _, frame = cap.read()
+
+        decodedObjects = pyzbar.decode(frame)
+        for obj in decodedObjects:
+
+            # print("Data", obj.data)
+
+           cv2.putText(frame, str(obj.data), (50, 50), font, 2,
+                        (255, 0, 0), 3)
+
+           scanned.config(text=obj.data)
+
+
+        cv2.imshow("Frame", frame)
+
+        key = cv2.waitKey(1)
+        if cv2.getWindowProperty('Frame',cv2.WND_PROP_VISIBLE)<1:
+            break
+    cv2.destroyAllWindows()
+scanned=tk.Label(window,text="WORKING", width=20,font=("Ariel Bold",15))
+scanned.pack()
+but3 = tk.Button(window,text="      SCAN       ", width=20,font=("Ariel Bold",15), command=scan)
+
+but3.pack()
+window.mainloop()
