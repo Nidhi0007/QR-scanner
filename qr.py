@@ -1,4 +1,3 @@
-
 import numpy as np
 import cv2
 import tkinter as tk
@@ -25,33 +24,35 @@ imageFrame.place(x=30,y=80)
 imageLabel = tk.Label(imageFrame)
 imageLabel.grid(row=0, column=0)
 
-cap = cv2.VideoCapture(0)
+cap = None
 font = cv2.FONT_HERSHEY_PLAIN
 def toggle():
+    global cap
+
+    cap = cv2.VideoCapture(0)
+    
     if but3.config('text')[-1]=='START':
         but3.config(text='STOP')
         print("start is pressed")
-        imageLabel.grid(row=0, column=0)
-        
+        imageLabel.pack()
         show_frame()
     else:
         but3.config(text='START')
-        img=null
         cap.release()
-       
-def hide():
-    print("stop is pressed")
+        resultLabel.config(text="Result")
+        dateLabel.configure(text="Inserted on")
+        imageLabel.pack_forget()
+        print("stop is pressed")
+
+    
+    
     
 def show_frame():
+
     _, frame = cap.read()
+    
     decodedObjects = pyzbar.decode(frame)
     print(decodedObjects)
-    cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
-    img = Image.fromarray(cv2image)
-    imgtk = ImageTk.PhotoImage(image=img)
-    imageLabel.imgtk = imgtk
-    imageLabel.configure(image=imgtk)
-    imageLabel.after(10, show_frame)
     
     for obj in decodedObjects:
         # print("Data", obj.data)
@@ -59,7 +60,7 @@ def show_frame():
                     (255, 0, 0), 3)
         date = datetime.datetime.now()
         resultLabel.config(text=obj.data)
-        cap.release()
+        
         dateLabel.configure(text=date)
         db = pymysql.connect("localhost","root","","qrscanner" )
         cursor = db.cursor()
@@ -68,12 +69,18 @@ def show_frame():
 
         # Execute the query
         cursor.execute(sql, (date,obj.data))
-
+        cap.release()
         # the connection is not autocommited by default. So we must commit to save our changes.
         db.commit()
         version = cursor.fetchone()
         print("DATABASE VERSION : %s" % version)
-
+        
+    cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+    img = Image.fromarray(cv2image)
+    imgtk = ImageTk.PhotoImage(image=img)
+    imageLabel.imgtk = imgtk
+    imageLabel.configure(image=imgtk)
+    imageLabel.after(10, show_frame)
     
 
 
